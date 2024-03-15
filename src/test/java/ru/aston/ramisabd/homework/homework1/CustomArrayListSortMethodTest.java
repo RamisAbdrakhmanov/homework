@@ -23,7 +23,6 @@ public class CustomArrayListSortMethodTest {
 
     @Test
     public void sortNaturalOrder() {
-
         customArrayList.sort(Comparator.naturalOrder());
 
         test = "";

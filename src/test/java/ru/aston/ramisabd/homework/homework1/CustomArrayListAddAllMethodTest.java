@@ -33,7 +33,6 @@ public class CustomArrayListAddAllMethodTest {
 
     @Test
     public void addMostThan10Element() {
-
         Set<String> collections = new HashSet<>();
 
         String testElement = "t";

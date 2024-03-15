@@ -17,7 +17,6 @@ public class CustomArrayList<E> {
             throw new IndexOutOfBoundsException("Выход за границу списка");
         }
 
-
         if (size == arr.length) {
             increaseArrayCapacity();
         }
@@ -28,7 +27,6 @@ public class CustomArrayList<E> {
 
         arr[index] = element;
         size++;
-
     }
 
     public void addAll(Collection<? extends E> c) {
@@ -37,7 +35,6 @@ public class CustomArrayList<E> {
         while (arr.length < size + newElements.length) {
             increaseArrayCapacity();
         }
-
         System.arraycopy(newElements, 0, arr, size, newElements.length);
         size += newElements.length;
     }
@@ -79,14 +76,11 @@ public class CustomArrayList<E> {
     }
 
     public void sort(Comparator<? super E> c) {
-
         if (c == null) {
             sort(arr, 0, size - 1, Comparator.naturalOrder());
         } else {
             sort(arr, 0, size - 1, c);
         }
-
-
     }
 
     private void sort(Object[] arr, int left, int right, Comparator c) {
