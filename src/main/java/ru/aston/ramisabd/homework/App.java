@@ -1,33 +1,28 @@
 package ru.aston.ramisabd.homework;
 
-import ru.aston.ramisabd.homework.crud.CrudUser;
-import ru.aston.ramisabd.homework.model.Department;
 import ru.aston.ramisabd.homework.model.Employee;
+import ru.aston.ramisabd.homework.service.EmployeeService;
+import ru.aston.ramisabd.homework.service.EmployeeServiceImpl;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class App {
+    static EmployeeService employeeService = new EmployeeServiceImpl();
+
     public static void main(String[] args) {
-        List<Employee> employees = CrudUser.getEmployees();
-        System.out.println(employees);
+        Employee employee = employeeService.getEmployee(1L);
+        System.out.println(employee);
+        System.out.println("__________________________________________________________");
 
-        List<Employee> save = CrudUser.saveEmployee(new Employee("Jack","Daniels"));
-        System.out.println(save);
+        employee = new Employee(null, "AAAA", "BBBB", 3000, new ArrayList<>());
+        employeeService.save(employee);
+        System.out.println(employeeService.getEmployees());
+        System.out.println("__________________________________________________________");
 
-        List<Employee> update = CrudUser.updateEmployee(1,"Idiot");
-        System.out.println(update);
+        employeeService.delete(employee.getId());
+        System.out.println(employeeService.getEmployees());
+        System.out.println("__________________________________________________________");
 
-        List<Employee> delete = CrudUser.deleteEmployee(2);
-        System.out.println(delete);
-
-        List<Department> departmentsNull = CrudUser.getDepartments();
-        System.out.println(departmentsNull);
-
-        List<Department> departments = CrudUser.getDepartmentWithEmployees();
-        System.out.println(departments);
-
-        List<Employee> employeesWithProjects = CrudUser.getEmployeesWithProjects();
-        System.out.println(employeesWithProjects);
 
     }
 }
