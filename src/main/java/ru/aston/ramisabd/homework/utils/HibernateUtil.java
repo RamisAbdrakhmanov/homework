@@ -1,8 +1,7 @@
 package ru.aston.ramisabd.homework.utils;
 
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
@@ -10,11 +9,11 @@ import ru.aston.ramisabd.homework.model.Department;
 import ru.aston.ramisabd.homework.model.Employee;
 import ru.aston.ramisabd.homework.model.Project;
 
-public class HibernateSessionFactoryUtil {
+public class HibernateUtil {
 
     private static SessionFactory sessionFactory;
 
-    private HibernateSessionFactoryUtil() {
+    private HibernateUtil() {
     }
 
     public static SessionFactory getSessionFactory() {
@@ -35,8 +34,8 @@ public class HibernateSessionFactoryUtil {
         return sessionFactory;
     }
 
-    @PersistenceContext
-    public static EntityManager getSession() {
+    public static Session openSession() {
         return getSessionFactory().openSession();
     }
+
 }

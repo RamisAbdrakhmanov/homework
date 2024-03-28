@@ -36,4 +36,11 @@ public class Employee extends User {
     )
     private List<Project> projects;
 
+    public Employee(Long id, String firstname, String lastname, Integer salary, List<Project> projects) {
+        super.setFirstname(firstname);
+        this.id = id;
+        this.lastname = lastname;
+        this.salary = salary;
+        this.projects = projects;
+    }
 }

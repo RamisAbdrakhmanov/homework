@@ -11,9 +11,10 @@ public interface GenericDAO<T, ID> {
 
     Long getCount();
 
-    T makePersistent(T entity);
+    void save(T t);
 
-    void makeTransient(T entity);
+    void update(T t);
 
-    void checkVersion(T entity, boolean forceUpdate);
+    void delete(Long id);
+
 }

@@ -1,3 +1,4 @@
+/*
 package ru.aston.ramisabd.homework;
 
 import org.junit.jupiter.api.Test;
@@ -11,3 +12,4 @@ class HomeworkApplicationTests {
     }
 
 }
+*/

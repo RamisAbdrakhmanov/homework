@@ -1,18 +1,15 @@
 package ru.aston.ramisabd.homework.service;
 
 import jakarta.transaction.Transactional;
-import ru.aston.ramisabd.homework.dao.EmployeeDao;
 import ru.aston.ramisabd.homework.dao.EmployeeDaoImpl;
 import ru.aston.ramisabd.homework.model.Employee;
-import ru.aston.ramisabd.homework.utils.SessionUtil;
 
-import javax.ejb.*;
-import javax.inject.Inject;
+import javax.ejb.Local;
+import javax.ejb.Stateless;
 import java.util.List;
 
 @Stateless
 @Local(EmployeeService.class)
-//@Remote(RemoteAuctionService.class)
 public class EmployeeServiceImpl implements EmployeeService {
 
 
@@ -35,7 +32,19 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public void saveEmployee(Employee employee) {
-        employeeDao.makePersistent(employee);
+    public void save(Employee employee) {
+        employeeDao.save(employee);
     }
+
+    @Override
+    public void update(Employee employee) {
+        employeeDao.update(employee);
+    }
+
+    @Override
+    public void delete(Long id) {
+        employeeDao.delete(id);
+    }
+
+
 }

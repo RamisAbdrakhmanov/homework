@@ -1,18 +1,16 @@
 package ru.aston.ramisabd.homework.dao;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.LockModeType;
 import jakarta.persistence.criteria.CriteriaQuery;
-import ru.aston.ramisabd.homework.utils.SessionUtil;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import ru.aston.ramisabd.homework.utils.HibernateUtil;
 
-import javax.ejb.Stateless;
 import java.util.List;
 
-@Stateless
-public abstract class GenericDAOImpl<T, ID> implements GenericDAO<T, ID> {
+import static org.hibernate.resource.transaction.spi.TransactionStatus.ACTIVE;
+import static org.hibernate.resource.transaction.spi.TransactionStatus.MARKED_ROLLBACK;
 
-    protected SessionUtil sessionUtil = new SessionUtil();
-    protected EntityManager em;
+public abstract class GenericDAOImpl<T, ID> implements GenericDAO<T, ID> {
 
     protected final Class<T> entityClass;
 
@@ -20,50 +18,121 @@ public abstract class GenericDAOImpl<T, ID> implements GenericDAO<T, ID> {
         this.entityClass = entityClass;
     }
 
-    public void setEntityManager(EntityManager em) {
-        this.em = em;
-    }
-
     public T findById(ID id) {
-        sessionUtil.openTransactionSession();
-        T t = sessionUtil.getSession().get(entityClass, id);
-        sessionUtil.closeTransactionSession();
+        Session session = HibernateUtil.openSession();
+        Transaction transaction = session.beginTransaction();
+        T t = null;
+        try {
+            t = session.get(entityClass, id);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction.getStatus() == ACTIVE || transaction.getStatus() == MARKED_ROLLBACK) {
+                transaction.rollback();
+            }
+        } finally {
+            session.close();
+        }
         return t;
     }
 
     public T findReferenceById(ID id) {
-        return em.getReference(entityClass, id);
+        Session session = HibernateUtil.openSession();
+        Transaction transaction = session.beginTransaction();
+        T t = null;
+        try {
+            t = session.getReference(entityClass, id);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction.getStatus() == ACTIVE || transaction.getStatus() == MARKED_ROLLBACK) {
+                transaction.rollback();
+            }
+        } finally {
+            session.close();
+        }
+        return t;
     }
 
     public List<T> findAll() {
-        CriteriaQuery<T> c =
-                em.getCriteriaBuilder().createQuery(entityClass);
-        c.select(c.from(entityClass));
-        return em.createQuery(c).getResultList();
+        Session session = HibernateUtil.openSession();
+        Transaction transaction = session.beginTransaction();
+        List<T> tList = null;
+        try {
+            CriteriaQuery<T> c =
+                    session.getCriteriaBuilder().createQuery(entityClass);
+            c.select(c.from(entityClass));
+            tList = session.createQuery(c).getResultList();
+
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction.getStatus() == ACTIVE || transaction.getStatus() == MARKED_ROLLBACK) {
+                transaction.rollback();
+            }
+        } finally {
+            session.close();
+        }
+        return tList;
     }
 
     public Long getCount() {
-        CriteriaQuery<Long> c =
-                em.getCriteriaBuilder().createQuery(Long.class);
-        c.select(em.getCriteriaBuilder().count(c.from(entityClass)));
-        return em.createQuery(c).getSingleResult();
+        Session session = HibernateUtil.openSession();
+        Transaction transaction = session.beginTransaction();
+        Long count = null;
+        try {
+            CriteriaQuery<Long> c =
+                    session.getCriteriaBuilder().createQuery(Long.class);
+            c.select(session.getCriteriaBuilder().count(c.from(entityClass)));
+            count = session.createQuery(c).getSingleResult();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction.getStatus() == ACTIVE || transaction.getStatus() == MARKED_ROLLBACK) {
+                transaction.rollback();
+            }
+        } finally {
+            session.close();
+        }
+        return count;
     }
 
-    public T makePersistent(T instance) {
-        // merge() handles transient AND detached instances
-        return em.merge(instance);
+    @Override
+    public void save(T t) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.openSession()) {
+            transaction = session.beginTransaction();
+            session.persist(t);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction.getStatus() == ACTIVE || transaction.getStatus() == MARKED_ROLLBACK) {
+                transaction.rollback();
+            }
+        }
     }
 
-    public void makeTransient(T instance) {
-        em.remove(instance);
+    @Override
+    public void update(T t) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.openSession()) {
+            transaction = session.beginTransaction();
+            session.merge(t);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction.getStatus() == ACTIVE || transaction.getStatus() == MARKED_ROLLBACK) {
+                transaction.rollback();
+            }
+        }
     }
 
-    public void checkVersion(T entity, boolean forceUpdate) {
-        em.lock(
-                entity,
-                forceUpdate
-                        ? LockModeType.OPTIMISTIC_FORCE_INCREMENT
-                        : LockModeType.OPTIMISTIC
-        );
+    @Override
+    public void delete(Long id) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.openSession()) {
+            transaction = session.beginTransaction();
+            T t = session.get(entityClass, id);
+            session.remove(t);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction.getStatus() == ACTIVE || transaction.getStatus() == MARKED_ROLLBACK) {
+                transaction.rollback();
+            }
+        }
     }
 }

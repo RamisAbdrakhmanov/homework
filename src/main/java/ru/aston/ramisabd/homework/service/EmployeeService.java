@@ -1,6 +1,5 @@
 package ru.aston.ramisabd.homework.service;
 
-import jakarta.persistence.LockModeType;
 import ru.aston.ramisabd.homework.model.Employee;
 
 import java.util.List;
@@ -12,15 +11,9 @@ public interface EmployeeService {
 
     Long getCount();
 
-    void saveEmployee(Employee employee);
+    void save(Employee t);
 
-   /* T findById(ID id, LockModeType lock);
+    void update(Employee t);
 
-    Employee findReferenceById(ID id);
-
-    T makePersistent(T entity);
-
-    void makeTransient(T entity);
-
-    void checkVersion(T entity, boolean forceUpdate);*/
+    void delete(Long id);
 }
