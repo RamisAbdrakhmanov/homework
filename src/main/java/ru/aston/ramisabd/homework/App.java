@@ -1,28 +1,34 @@
 package ru.aston.ramisabd.homework;
 
-import ru.aston.ramisabd.homework.model.Employee;
-import ru.aston.ramisabd.homework.service.EmployeeService;
-import ru.aston.ramisabd.homework.service.EmployeeServiceImpl;
-
-import java.util.ArrayList;
+import org.apache.catalina.Context;
+import org.apache.catalina.LifecycleException;
+import org.apache.catalina.Wrapper;
+import org.apache.catalina.startup.Tomcat;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.servlet.DispatcherServlet;
 
 public class App {
-    static EmployeeService employeeService = new EmployeeServiceImpl();
 
-    public static void main(String[] args) {
-        Employee employee = employeeService.getEmployee(1L);
-        System.out.println(employee);
-        System.out.println("__________________________________________________________");
+    public static void main(String[] args) throws LifecycleException {
+        Tomcat tomcat = new Tomcat();
+        tomcat.getConnector().setPort(8080);
 
-        employee = new Employee(null, "AAAA", "BBBB", 3000, new ArrayList<>());
-        employeeService.save(employee);
-        System.out.println(employeeService.getEmployees());
-        System.out.println("__________________________________________________________");
+        Context tomcatContext = tomcat.addContext("", null);
 
-        employeeService.delete(employee.getId());
-        System.out.println(employeeService.getEmployees());
-        System.out.println("__________________________________________________________");
+        AnnotationConfigWebApplicationContext applicationContext =
+                new AnnotationConfigWebApplicationContext();
+        applicationContext.scan("ru.aston");
+        applicationContext.setServletContext(tomcatContext.getServletContext());
+        applicationContext.refresh();
 
+        // добавляем диспетчер запросов
+        DispatcherServlet dispatcherServlet = new DispatcherServlet(applicationContext);
+        Wrapper dispatcherWrapper =
+                Tomcat.addServlet(tomcatContext, "dispatcher", dispatcherServlet);
+        dispatcherWrapper.addMapping("/");
+        dispatcherWrapper.setLoadOnStartup(1);
 
+        tomcat.start();
     }
+
 }
