@@ -105,6 +105,8 @@ public class EmployeeDaoImpl implements EmployeeDao {
 
     @Override
     public void delete(Long id) {
+        em.createQuery("delete from Employee e where e.id= :id")
+                .setParameter("id", id).executeUpdate();
 
     }
 }

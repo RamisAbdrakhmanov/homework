@@ -11,7 +11,7 @@ import ru.aston.ramisabd.homework.model.Employee;
 import java.util.List;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService {
 
