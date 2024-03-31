@@ -1,7 +1,6 @@
 package ru.aston.ramisabd.homework.service;
 
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,12 +11,14 @@ import java.util.List;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService {
 
+    private final EmployeeDao employeeDao;
 
     @Autowired
-    EmployeeDao employeeDao;
+    public EmployeeServiceImpl(EmployeeDao employeeDao) {
+        this.employeeDao = employeeDao;
+    }
 
     @Override
     public Employee getEmployee(Long id) {

@@ -1,6 +1,5 @@
 package ru.aston.ramisabd.homework.controller;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -14,11 +13,14 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/employee")
-@RequiredArgsConstructor
 public class EmployeeController {
 
-    @Autowired
     private final EmployeeService employeeService;
+
+    @Autowired
+    public EmployeeController(EmployeeService employeeService) {
+        this.employeeService = employeeService;
+    }
 
     @GetMapping("/{id}")
     @ResponseBody
@@ -44,7 +46,7 @@ public class EmployeeController {
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id){
+    public void delete(@PathVariable Long id) {
         employeeService.delete(id);
     }
 }
