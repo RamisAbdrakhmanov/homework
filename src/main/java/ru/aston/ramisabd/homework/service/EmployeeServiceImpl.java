@@ -1,22 +1,36 @@
 package ru.aston.ramisabd.homework.service;
 
-import jakarta.transaction.Transactional;
-import ru.aston.ramisabd.homework.dao.EmployeeDaoImpl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.aston.ramisabd.homework.dao.EmployeeDao;
 import ru.aston.ramisabd.homework.model.Employee;
 
-import javax.ejb.Local;
-import javax.ejb.Stateless;
 import java.util.List;
 
-@Stateless
-@Local(EmployeeService.class)
+@Service
+@Transactional
 public class EmployeeServiceImpl implements EmployeeService {
 
+    private final EmployeeDao employeeDao;
 
-    private final EmployeeDaoImpl employeeDao = new EmployeeDaoImpl();
+    @Autowired
+    public EmployeeServiceImpl(EmployeeDao employeeDao) {
+        this.employeeDao = employeeDao;
+    }
+
+
+    public void gen() {
+        employeeDao.generateDataBaseForIndex();
+    }
 
     @Override
-    @Transactional
+    public List<Employee> getEmployeeBySalary(Integer salary) {
+        return employeeDao.findBySalary(salary);
+    }
+
+    @Override
     public Employee getEmployee(Long id) {
         return employeeDao.findById(id);
     }

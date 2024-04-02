@@ -1,133 +1,104 @@
 package ru.aston.ramisabd.homework.dao;
 
-import jakarta.persistence.EntityGraph;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
+import org.springframework.stereotype.Repository;
 import ru.aston.ramisabd.homework.model.Employee;
-import ru.aston.ramisabd.homework.utils.HibernateUtil;
 
-import javax.ejb.Stateless;
+import javax.persistence.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.List;
+import java.util.Random;
 
-import static org.hibernate.resource.transaction.spi.TransactionStatus.ACTIVE;
-import static org.hibernate.resource.transaction.spi.TransactionStatus.MARKED_ROLLBACK;
 
-@Stateless
-public class EmployeeDaoImpl extends GenericDAOImpl<Employee, Long> implements EmployeeDao {
+@Repository
+public class EmployeeDaoImpl implements EmployeeDao {
 
-    public EmployeeDaoImpl() {
-        super(Employee.class);
+    @PersistenceContext
+    private EntityManager em;
+
+
+    public void generateDataBaseForIndex() {
+        Random rand = new Random();
+        Employee employee = null;
+        for (int i = 0; i < 1_000_000; i++) {
+            employee = new Employee(null, "Data", "Check", rand.nextInt(10_000), null);
+            em.persist(employee);
+        }
     }
 
 
     @Override
     public Employee findById(Long id) {
-        Session session = HibernateUtil.openSession();
-        Transaction transaction = session.beginTransaction();
-        Employee employee = null;
-        try {
-            EntityGraph<?> entityGraph = session.createEntityGraph("graph.employee");
-            TypedQuery<Employee> q = session.createQuery("SELECT e FROM Employee e " +
-                            "WHERE e.id = :id", Employee.class)
-                    .setHint("javax.persistence.fetchgraph", entityGraph);
-
-            q.setParameter("id", id);
-
-            employee = q.getSingleResult();
-
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction.getStatus() == ACTIVE || transaction.getStatus() == MARKED_ROLLBACK) {
-                transaction.rollback();
-            }
-        } finally {
-            session.close();
-        }
-        return employee;
+        return em.createQuery(
+                        "select e " +
+                                "from Employee e " +
+                                "where e.id = :id ", Employee.class)
+                .setParameter("id", id)
+                .getSingleResult();
     }
+
 
     @Override
     public List<Employee> findAll() {
-        Session session = HibernateUtil.openSession();
-        Transaction transaction = session.beginTransaction();
-        List<Employee> tList = null;
-        try {
-            EntityGraph<?> entityGraph = session.createEntityGraph("graph.employee");
-            TypedQuery<Employee> q = session.createQuery("SELECT e FROM Employee e ", Employee.class)
-                    .setHint("javax.persistence.fetchgraph", entityGraph);
-
-            tList = q.getResultList();
-
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction.getStatus() == ACTIVE || transaction.getStatus() == MARKED_ROLLBACK) {
-                transaction.rollback();
-            }
-        } finally {
-            session.close();
-        }
-        return tList;
+        EntityGraph<?> entityGraph = em.createEntityGraph("graph.employee");
+        TypedQuery<Employee> q = em.createQuery("SELECT e FROM Employee e ", Employee.class)
+                .setHint("javax.persistence.fetchgraph", entityGraph);
+        return q.getResultList();
     }
 
     @Override
     public List<Employee> findByName(String firstname, String lastname) {
-        Session session = HibernateUtil.openSession();
-        Transaction transaction = session.beginTransaction();
-        List<Employee> employees = null;
-        try {
-            CriteriaBuilder cb = session.getCriteriaBuilder();
-            CriteriaQuery<Employee> criteria = cb.createQuery(Employee.class);
-            criteria.select(criteria.from(Employee.class));
 
-            Root<Employee> i = criteria.from(Employee.class);
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Employee> criteria = cb.createQuery(Employee.class);
+        criteria.select(criteria.from(Employee.class));
 
-            TypedQuery<Employee> query = session.createQuery(
-                    criteria.where(
-                            cb.equal(
-                                    i.get("firstname"), firstname),
-                            cb.equal(
-                                    i.get("lastname"), lastname)));
-            employees = query.getResultList();
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction.getStatus() == ACTIVE || transaction.getStatus() == MARKED_ROLLBACK) {
-                transaction.rollback();
-            }
-        } finally {
-            session.close();
-        }
+        Root<Employee> i = criteria.from(Employee.class);
 
-        return employees;
+        TypedQuery<Employee> query = em.createQuery(
+                criteria.where(
+                        cb.equal(
+                                i.get("firstname"), firstname),
+                        cb.equal(
+                                i.get("lastname"), lastname)));
+
+        return query.getResultList();
     }
 
     @Override
-    public List<Employee> findBySalary(Long salary) {
-        Session session = HibernateUtil.openSession();
-        Transaction transaction = session.beginTransaction();
-        List<Employee> employees = null;
-        try {
-            CriteriaBuilder cb = session.getCriteriaBuilder();
-            CriteriaQuery<Employee> criteria = cb.createQuery(Employee.class);
-            criteria.select(criteria.from(Employee.class));
+    public List<Employee> findBySalary(Integer salary) {
 
-            Root<Employee> i = criteria.from(Employee.class);
-            TypedQuery<Employee> query = session.createQuery(
-                    criteria.where(
-                            cb.gt(i.get("salary"), salary)));
-            employees = query.getResultList();
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction.getStatus() == ACTIVE || transaction.getStatus() == MARKED_ROLLBACK) {
-                transaction.rollback();
-            }
-        } finally {
-            session.close();
-        }
+        EntityGraph<?> entityGraph = em.createEntityGraph("graph.employee");
+        TypedQuery<Employee> q = em.createQuery("SELECT e FROM Employee e " +
+                        "where salary > :salary", Employee.class)
+                .setParameter("salary", salary)
+                .setHint("javax.persistence.fetchgraph", entityGraph);
 
-        return employees;
+        return q.getResultList();
+    }
+
+
+    @Override
+    public Long getCount() {
+        Query q = em.createQuery("select count(Employee.id) from Employee ");
+        return (Long) q.getSingleResult();
+    }
+
+    @Override
+    public void save(Employee t) {
+
+    }
+
+    @Override
+    public void update(Employee t) {
+
+    }
+
+    @Override
+    public void delete(Long id) {
+        em.createQuery("delete from Employee e where e.id= :id")
+                .setParameter("id", id).executeUpdate();
+
     }
 }

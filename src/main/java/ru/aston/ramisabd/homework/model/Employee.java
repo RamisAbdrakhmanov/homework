@@ -1,13 +1,13 @@
 package ru.aston.ramisabd.homework.model;
 
-import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import javax.persistence.*;
 import java.util.List;
 
 
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,10 +17,13 @@ import java.util.List;
         name = "graph.employee",
         attributeNodes = @NamedAttributeNode("projects")
 )
-public class Employee extends User {
+public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column
+    private String firstname;
 
     @Column
     private String lastname;
@@ -36,11 +39,4 @@ public class Employee extends User {
     )
     private List<Project> projects;
 
-    public Employee(Long id, String firstname, String lastname, Integer salary, List<Project> projects) {
-        super.setFirstname(firstname);
-        this.id = id;
-        this.lastname = lastname;
-        this.salary = salary;
-        this.projects = projects;
-    }
 }

@@ -5,6 +5,11 @@ import ru.aston.ramisabd.homework.model.Employee;
 import java.util.List;
 
 public interface EmployeeService {
+
+    void gen();
+
+    List<Employee> getEmployeeBySalary(Integer salary);
+
     Employee getEmployee(Long id);
 
     List<Employee> getEmployees();
