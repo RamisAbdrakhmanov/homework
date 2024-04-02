@@ -28,11 +28,23 @@ public class EmployeeController {
         return EmployeeMapper.toEmployeeDto(employeeService.getEmployee(id));
     }
 
+    @GetMapping("/gen")
+    @ResponseBody
+    public void getEmployee() {
+        employeeService.gen();
+    }
+
     @GetMapping
     @ResponseBody
     public List<EmployeeDto> getEmployees() {
         return employeeService.getEmployees()
                 .stream().map(EmployeeMapper::toEmployeeDto).collect(Collectors.toList());
+    }
+
+    @GetMapping("/salary/{salary}")
+    @ResponseBody
+    public List<Employee> getEmployeesBySalary(@PathVariable Integer salary) {
+        return employeeService.getEmployeeBySalary(salary);
     }
 
     @PostMapping

@@ -20,6 +20,16 @@ public class EmployeeServiceImpl implements EmployeeService {
         this.employeeDao = employeeDao;
     }
 
+
+    public void gen() {
+        employeeDao.generateDataBaseForIndex();
+    }
+
+    @Override
+    public List<Employee> getEmployeeBySalary(Integer salary) {
+        return employeeDao.findBySalary(salary);
+    }
+
     @Override
     public Employee getEmployee(Long id) {
         return employeeDao.findById(id);

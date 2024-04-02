@@ -2,13 +2,13 @@ package ru.aston.ramisabd.homework.dao;
 
 import org.springframework.stereotype.Repository;
 import ru.aston.ramisabd.homework.model.Employee;
-import ru.aston.ramisabd.homework.model.dto.EmployeeDto;
 
 import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.List;
+import java.util.Random;
 
 
 @Repository
@@ -18,31 +18,26 @@ public class EmployeeDaoImpl implements EmployeeDao {
     private EntityManager em;
 
 
+    public void generateDataBaseForIndex() {
+        Random rand = new Random();
+        Employee employee = null;
+        for (int i = 0; i < 1_000_000; i++) {
+            employee = new Employee(null, "Data", "Check", rand.nextInt(10_000), null);
+            em.persist(employee);
+        }
+    }
+
+
     @Override
     public Employee findById(Long id) {
-        System.out.println("___________________________________________________" +
-                "________________________________________________________________" +
-                "___________________________________________________________________" +
-                "_____________________________________________________________________");
-
-      /* EmployeeDto employeeDto = em.createQuery(
-               "select new ru.aston.ramisabd.homework.model.dto.EmployeeDto(e.id, e.firstname, e.lastname) " +
-               "from Employee e " +
-                       "where e.id = :id ", EmployeeDto.class)
-               .setParameter("id", id)
-               .getSingleResult();*/
-
-        Employee employee = em.createQuery(
+        return em.createQuery(
                         "select e " +
                                 "from Employee e " +
                                 "where e.id = :id ", Employee.class)
                 .setParameter("id", id)
                 .getSingleResult();
-
-        EmployeeDto employeeDto = new EmployeeDto(employee.getId(), employee.getFirstname(), employee.getLastname());
-
-        return employee;
     }
+
 
     @Override
     public List<Employee> findAll() {
@@ -72,18 +67,15 @@ public class EmployeeDaoImpl implements EmployeeDao {
     }
 
     @Override
-    public List<Employee> findBySalary(Long salary) {
+    public List<Employee> findBySalary(Integer salary) {
 
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Employee> criteria = cb.createQuery(Employee.class);
-        criteria.select(criteria.from(Employee.class));
+        EntityGraph<?> entityGraph = em.createEntityGraph("graph.employee");
+        TypedQuery<Employee> q = em.createQuery("SELECT e FROM Employee e " +
+                        "where salary > :salary", Employee.class)
+                .setParameter("salary", salary)
+                .setHint("javax.persistence.fetchgraph", entityGraph);
 
-        Root<Employee> i = criteria.from(Employee.class);
-        TypedQuery<Employee> query = em.createQuery(
-                criteria.where(
-                        cb.gt(i.get("salary"), salary)));
-
-        return query.getResultList();
+        return q.getResultList();
     }
 
 

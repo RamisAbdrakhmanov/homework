@@ -6,9 +6,11 @@ import java.util.List;
 
 
 public interface EmployeeDao {
+    void generateDataBaseForIndex();
+
     List<Employee> findByName(String firstname, String lastname);
 
-    List<Employee> findBySalary(Long salary);
+    List<Employee> findBySalary(Integer salary);
 
     Employee findById(Long id);
 
