@@ -1,27 +1,14 @@
 package ru.aston.ramisabd.homework.dao;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import ru.aston.ramisabd.homework.model.Employee;
 
 import java.util.List;
 
 
-public interface EmployeeDao {
-    void generateDataBaseForIndex();
-
-    List<Employee> findByName(String firstname, String lastname);
+public interface EmployeeDao extends JpaRepository<Employee, Long> {
 
     List<Employee> findBySalary(Integer salary);
 
-    Employee findById(Long id);
-
-    List<Employee> findAll();
-
-    Long getCount();
-
-    void save(Employee t);
-
-    void update(Employee t);
-
-    void delete(Long id);
 
 }

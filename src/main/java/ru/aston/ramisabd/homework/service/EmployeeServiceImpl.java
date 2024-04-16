@@ -21,10 +21,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
 
-    public void gen() {
-        employeeDao.generateDataBaseForIndex();
-    }
-
     @Override
     public List<Employee> getEmployeeBySalary(Integer salary) {
         return employeeDao.findBySalary(salary);
@@ -32,17 +28,12 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Employee getEmployee(Long id) {
-        return employeeDao.findById(id);
+        return employeeDao.findById(id).get();
     }
 
     @Override
     public List<Employee> getEmployees() {
         return employeeDao.findAll();
-    }
-
-    @Override
-    public Long getCount() {
-        return employeeDao.getCount();
     }
 
     @Override
@@ -52,12 +43,12 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public void update(Employee employee) {
-        employeeDao.update(employee);
+        employeeDao.save(employee);
     }
 
     @Override
     public void delete(Long id) {
-        employeeDao.delete(id);
+        employeeDao.deleteById(id);
     }
 
 
