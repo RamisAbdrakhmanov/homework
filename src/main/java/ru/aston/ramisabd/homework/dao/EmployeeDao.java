@@ -9,6 +9,4 @@ import java.util.List;
 public interface EmployeeDao extends JpaRepository<Employee, Long> {
 
     List<Employee> findBySalary(Integer salary);
-
-
 }
